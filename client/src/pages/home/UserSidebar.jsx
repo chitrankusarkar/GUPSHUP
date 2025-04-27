@@ -14,7 +14,7 @@ const UserSideBar = () => {
                     GUPSHUP
                 </div>
             </div>
-
+            
             <div className="px-1 py-4">
                 <label class="input input-bordered flex items-center gap-2">
                     <input type="text" className="grow bg-transparent outline-none" placeholder="Search" />

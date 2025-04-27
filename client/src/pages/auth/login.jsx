@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 const Login = () => {
     const [loginData, setLoginData] = useState ({
-        username : "",
+        username_or_email: "",
         password : "",
     });
 
@@ -22,7 +22,7 @@ const handleInputChange = (e) => {
                 <h2 className="text-2xl text-center pb-6">Please Login :)</h2>
                 <label className="input input-bordered flex items-center gap-2">
                     <FaUser />
-                    <input type="text" name="username" className="grow" placeholder="Username" onChange={handleInputChange}/>
+                    <input type="text" name="username_or_email" className="grow" placeholder="Username or email" onChange={handleInputChange}/>
                 </label>
                 <label className="input input-bordered flex items-center gap-2">
                     <TbLockPassword />

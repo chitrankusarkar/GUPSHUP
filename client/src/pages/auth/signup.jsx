@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { TbLockPassword } from "react-icons/tb";
+import { MdAlternateEmail } from "react-icons/md";
 import { Link } from "react-router-dom";
 
 const Signup = () => {
     const [signupData, setSignupData] = useState ({
             fullName : "",
             username: "",
+            email: "",
             password : "",
             confirmPassword : "",
         });
@@ -28,6 +30,10 @@ const Signup = () => {
                 <label className="input input-bordered flex items-center gap-2">
                     <FaUser />
                     <input type="text" name = "username" className="grow" placeholder="username" onChange={handleInputChange}/>
+                </label>
+                <label className="input input-bordered flex items-center gap-2">
+                    <MdAlternateEmail />
+                    <input type="text" name = "email" className="grow" placeholder="E-mail" onChange={handleInputChange}/>
                 </label>
                 <label className="input input-bordered flex items-center gap-2">
                     <TbLockPassword />
