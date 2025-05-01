@@ -6,11 +6,29 @@ export const login = (req, res, next) => {
     res.send("Login route")
 }
 
-export const signup = asyncHandler((req, res, next) => {
+export const signup = asyncHandler(async (req, res, next) => {
         const { fullName, username, email, password, gender } = req.body;
         
         if(!fullName || !username || !email || !password || !gender) {
             return next(new errorHandler("All fields are required!", 400))
+        }   
+        const user = await User.findOne({$or: [{ username }, { email }]});
+        if(user) {
+            return next(new errorHandler("User already exists!", 400))
         }
+        const newUser = await User.create({
+            fullName,
+            username,
+            email,
+            password,
+            gender,
+        })
+
+        res.status(200).json({
+            success: true,
+            responseData:{
+                newUser
+            }
+        })
         res.send("Hi, thanks for signing up")
 })
