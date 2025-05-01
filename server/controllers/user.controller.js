@@ -22,6 +22,7 @@ export const signup = asyncHandler(async (req, res, next) => {
             email,
             password,
             gender,
+            avatar
         })
 
         res.status(200).json({
