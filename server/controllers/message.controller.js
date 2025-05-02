@@ -27,4 +27,32 @@ export const sendMessage = asyncHandler(async (req, res, next) => {
         receiverId,
         message
     })
+
+    if(newMessage) {
+        conversation.messages.push(newMessage._id)
+        await conversation.save()
+    }
+
+    res.status(200).json({
+        success: true,
+        responseData: newMessage
+    })
+})
+
+export const getMessages = asyncHandler(async (req, res, next) => {
+    const myId = req.user._id
+    const otherParticipantId = req.params.otherParticipantId
+
+    if (!myId || !otherParticipantId) {
+        return next(new errorHandler("All fields are required", 400))
+    }
+
+    let conversation = await Conversation.findOne({
+        participants: { $all: [myId, otherParticipantId] },
+    }).populate("messages")
+
+    res.status(200).json({
+        success: true,
+        responseData: conversation
+    })
 })
