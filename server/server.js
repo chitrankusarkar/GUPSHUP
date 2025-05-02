@@ -1,16 +1,17 @@
 import dotenv from 'dotenv'
 dotenv.config()
-import express from 'express'
-import bodyParser from "body-parser";
+import express from 'express';
 import { connectDB } from './database/connection1.database.js'
 import userRoute from './routes/user.route.js'
 import { errorMiddleware } from './middlewares/error.middleware.js'
+import cookieParser from 'cookie-parser';
 
 connectDB()
 const app = express()
 const PORT = process.env.PORT
 
 app.use(express.json())
+app.use(cookieParser())
 app.use('/api/v1/user', userRoute)
 
 app.use(errorMiddleware)
