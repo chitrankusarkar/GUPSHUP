@@ -6,26 +6,26 @@ import Home from './pages/home/Home.jsx'
 import Login from './pages/auth/login.jsx'
 import Signup from './pages/auth/signup.jsx'
 import { store } from './store/store.js'
-import {Provider} from 'react-redux'
+import { Provider } from 'react-redux'
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/signup",
-    element: <Signup />,
+    element: <App />,
+    children: [
+      { path: "", element: <Home /> },
+      { path: "login", element: <Login /> },
+      { path: "signup", element: <Signup /> },
+    ],
   },
 ]);
 
+
+
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
-  <RouterProvider router={router}>
-        <App />
-  </RouterProvider>
+    <RouterProvider router={router}>
+      <App />
+    </RouterProvider>
   </Provider>
 )

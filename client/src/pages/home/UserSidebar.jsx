@@ -16,7 +16,7 @@ const UserSideBar = () => {
             </div>
             
             <div className="px-1 py-4">
-                <label class="input input-bordered flex items-center gap-2">
+                <label className="input input-bordered flex items-center gap-2">
                     <input type="text" className="grow bg-transparent outline-none" placeholder="Search" />
                     <button className="text-white hover:text-blue-500 cursor-pointer">
                         <IoSearch size={20} />
@@ -43,8 +43,8 @@ const UserSideBar = () => {
                 <User />
             </div>
             <div className="flex items-center justify-between p-3">
-                <div class="avatar">
-                    <div class="ring-primary ring-offset-base-100 w-9 rounded-full ring ring-offset-2 ">
+                <div className="avatar">
+                    <div className="ring-primary ring-offset-base-100 w-9 rounded-full ring ring-offset-2 ">
                         <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
                     </div>
                 </div>
