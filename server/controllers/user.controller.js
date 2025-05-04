@@ -39,7 +39,7 @@ export const signup = asyncHandler(async (req, res, next) => {
                 Date.now() + process.env.COOKIE_EXPIRES * 24 * 60 * 60 * 1000
             ),
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
+            secure: true,
             sameSite: 'None'
         })
         .json({
@@ -53,25 +53,30 @@ export const signup = asyncHandler(async (req, res, next) => {
 })
 
 export const login = asyncHandler(async (req, res, next) => {
-    const { fullName, username, email, password, gender } = req.body;
-    if ((!username && !email) || !password) {
-        return next(new errorHandler("Please enter credentials!", 400))
+    const { username_or_email, password } = req.body;
+
+    if (!username_or_email || !password) {
+        return next(new errorHandler("Please enter credentials!", 400));
     }
-    const user = await User.findOne({ $or: [{ username }, { email }] });
+
+    const user = await User.findOne({
+        $or: [{ username: username_or_email }, { email: username_or_email }]
+    });
+
     if (!user) {
-        return next(new errorHandler("Please enter a valid username or password!", 400))
+        return next(new errorHandler("Invalid credentials!", 400));
     }
-    const isValidPassword = await bcrypt.compare(password, user.password)
+
+    const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-        return next(new errorHandler("Incorrect password!", 400))
+        return next(new errorHandler("Incorrect password!", 400));
     }
 
-    const tokenData = {
-        _id: user?._id
-    }
+    const tokenData = { _id: user._id };
 
-    const token = jwt.sign(tokenData, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES })
-
+    const token = jwt.sign(tokenData, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRES
+    });
 
     res
         .status(200)
@@ -80,7 +85,7 @@ export const login = asyncHandler(async (req, res, next) => {
                 Date.now() + process.env.COOKIE_EXPIRES * 24 * 60 * 60 * 1000
             ),
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
+            secure: true,
             sameSite: 'None'
         })
         .json({
@@ -89,8 +94,8 @@ export const login = asyncHandler(async (req, res, next) => {
                 user,
                 token
             }
-        })
-})
+        });
+});
 
 export const getProfile = asyncHandler(async (req, res, next) => {
     const userId = req.user._id
@@ -115,7 +120,7 @@ export const logout = asyncHandler(async (req, res, next) => {
         })
 })
 export const getOtherUsers = asyncHandler(async (req, res, next) => {
-    const otherUsers = await User.find({_id: {$ne: req.user._id}})
+    const otherUsers = await User.find({ _id: { $ne: req.user._id } })
     res
         .status(200)
         .json({
