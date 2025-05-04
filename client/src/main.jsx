@@ -7,25 +7,42 @@ import Login from './pages/auth/login.jsx'
 import Signup from './pages/auth/signup.jsx'
 import { store } from './store/store.js'
 import { Provider } from 'react-redux'
-
+import ProtectedRoute from './components/ProtectedRoutes.jsx'
+import PublicRoute from './components/PublicRoutes.jsx'
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
-      { path: "", element: <Home /> },
-      { path: "login", element: <Login /> },
-      { path: "signup", element: <Signup /> },
+      {
+        path: "",
+        element: (
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "login",
+        element: (
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        )
+      },
+      {
+        path: "signup",
+        element: (
+          <PublicRoute>
+            <Signup />
+          </PublicRoute>
+        )
+      },
     ],
   },
 ]);
-
-
-
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
-    <RouterProvider router={router}>
-      <App />
-    </RouterProvider>
+    <RouterProvider router={router} />
   </Provider>
 )

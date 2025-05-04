@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { TbLockPassword } from "react-icons/tb";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from 'react-hot-toast'
-import { useDispatch } from 'react-redux'
-import { loginUserThunk } from "../../store/slice/user/user.thunk";
+import { useDispatch, useSelector } from 'react-redux'
+import { loginUserThunk } from "../../store/slice/user/user.thunk.js";
 
 const Login = () => {
     const navigate = useNavigate()
@@ -13,7 +13,13 @@ const Login = () => {
         username_or_email: "",
         password: "",
     });
+    const { isAuthenticated } = useSelector(
+        (state) => state.userReducer
+    )
 
+    useEffect(() => {
+        if(isAuthenticated) navigate('/')
+    }, [])
     const handleInputChange = (e) => {
         setLoginData((prev) => ({
             ...prev,
@@ -25,6 +31,11 @@ const Login = () => {
     const handleLogin = async () => {
         if (isLoggingIn) return;
 
+        const { username_or_email, password } = loginData;
+        if (!username_or_email.trim() || !password.trim()) {
+            toast.error("Enter login details!");
+            return;
+        }
         setIsLoggingIn(true);
 
         const response = await dispatch(loginUserThunk(loginData));
@@ -39,7 +50,7 @@ const Login = () => {
             setIsLoggingIn(false);
         }, 3000);
 
-        if(response?.payload?.success) {
+        if (response?.payload?.success) {
             navigate('/')
         }
     };

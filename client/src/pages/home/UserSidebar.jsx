@@ -2,8 +2,19 @@ import React from "react";
 import { IoSearch } from "react-icons/io5";
 import User from "./User";
 import { LuLogOut } from "react-icons/lu";
+import { useDispatch } from 'react-redux'
+import { logoutUserThunk } from "../../store/slice/user/user.thunk.js";
+import { useNavigate } from "react-router-dom";
 
 const UserSideBar = () => {
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const handleLogout = async () => {
+    await dispatch(logoutUserThunk())
+    // if (logoutUserThunk.fulfilled.match(response)) {
+    //     navigate('/login');
+    // }
+    }
     return (
         <div className="max-w-[20em] w-full h-screen flex flex-col">
             <div className="flex items-center gap-5 px-4 mt-2">
@@ -49,7 +60,7 @@ const UserSideBar = () => {
                     </div>
                 </div>
                 <div className="p-2">
-                    <button className="text-white hover:text-red-500 cursor-pointer">
+                    <button onClick={handleLogout} className="text-white hover:text-red-500 cursor-pointer">
                         <LuLogOut size={24} />
                     </button>
                 </div>
