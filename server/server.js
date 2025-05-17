@@ -9,7 +9,9 @@ import cors from 'cors'
 
 connectDB()
 const PORT = process.env.PORT
-
+app.get('/', (req, res) =>{
+    res.send("Working")
+})
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
