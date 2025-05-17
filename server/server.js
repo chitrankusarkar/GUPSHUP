@@ -15,7 +15,7 @@ app.get('/', (req, res) =>{
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-    origin: [process.env.CLIENT_URI],
+    origin: process.env.CLIENT_URI,
     credentials: true
 }))
 app.use('/api/v1/user', userRoute)

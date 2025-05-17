@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
 import UserSideBar from "./UserSidebar";
 import MessageContainer from "./MessageContainer";
-import io from 'socket.io-client'
 import { useDispatch, useSelector } from "react-redux";
 import { initializeSocket, setOnlineUsers } from "../../store/slice/socket/socket.slice";
 import { setNewMessage } from "../../store/slice/message/message.slice";
 
-const Home = () => {
+const Home = () => { 
     const dispatch = useDispatch()
     const { isAuthenticated, userProfile } = useSelector((state) => state.userReducer)
     const { socket } = useSelector((state) => state.socketReducer)

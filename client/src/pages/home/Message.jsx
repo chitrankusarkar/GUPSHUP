@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect } from "react";
 import { useRef } from "react";
 import { useSelector } from "react-redux";
-
+ 
 const Message = ({messageDetails}) => {
     const msgRef = useRef(null)
     const { userProfile, selectedUser } = useSelector(state=>state.userReducer)
