@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaUser } from "react-icons/fa";
 import { TbLockPassword } from "react-icons/tb";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
@@ -18,8 +19,9 @@ const Login = () => {
     )
 
     useEffect(() => {
-        if(isAuthenticated) navigate('/')
+        if (isAuthenticated) navigate('/')
     }, [])
+
     const handleInputChange = (e) => {
         setLoginData((prev) => ({
             ...prev,
@@ -28,6 +30,8 @@ const Login = () => {
     };
 
     const [isLoggingIn, setIsLoggingIn] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+
     const handleLogin = async () => {
         if (isLoggingIn) return;
 
@@ -55,9 +59,6 @@ const Login = () => {
         }
     };
 
-
-
-
     return (
         <div className="min-h-screen w-full flex justify-center items-center p-5">
             <div className="max-w-[50rem] flex flex-col gap-2 bg-base-200 p-6 rounded-lg">
@@ -68,7 +69,20 @@ const Login = () => {
                 </label>
                 <label className="input input-bordered flex items-center gap-2">
                     <TbLockPassword />
-                    <input type="password" name="password" className="grow" placeholder="Password" onChange={handleInputChange} />
+                    <input
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        className="grow"
+                        placeholder="Password"
+                        onChange={handleInputChange}
+                    />
+                    <button
+                        type="button"
+                        className="ml-2 text-gray-500"
+                        onClick={() => setShowPassword(!showPassword)}
+                    >
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </button>
                 </label>
                 <button onClick={handleLogin} className="btn btn-dash" disabled={isLoggingIn}>
                     {isLoggingIn ? "Please wait..." : "Login"}
@@ -81,5 +95,4 @@ const Login = () => {
         </div>
     )
 }
-
 export default Login;
