@@ -5,6 +5,9 @@ import { setSelectedUser } from "../../store/slice/user/user.slice";
 const User = ({ userDetails, isStatic = false }) => {
     const dispatch = useDispatch();
     const { selectedUser } = useSelector(state => state.userReducer)
+    const { onlineUsers } = useSelector((state) => state.socketReducer)
+    const isUserOnline = onlineUsers?.includes(userDetails?._id)
+
     const handleUserClick = () => {
         if (!isStatic) {
             dispatch(setSelectedUser(userDetails));
@@ -18,7 +21,7 @@ const User = ({ userDetails, isStatic = false }) => {
             className={`flex gap-6 items-center rounded-lg py-1 px-2 ${!isStatic ? 'hover:bg-gray-600 cursor-pointer' : ''
                 } ${isSelected && !isStatic ? 'bg-gray-600' : ''}`}
         >
-            <div className="avatar online">
+            <div className={`avatar ${isUserOnline && 'online'}`}>
                 <div className="w-12 rounded-full">
                     <img src={userDetails?.avatar} />
                 </div>

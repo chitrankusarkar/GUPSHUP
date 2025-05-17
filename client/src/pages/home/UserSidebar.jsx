@@ -1,5 +1,5 @@
-import React from "react";
-import { IoSearch } from "react-icons/io5";
+import React, { useEffect, useState } from "react";
+import { RxCross2 } from "react-icons/rx"; // 🔄 Used instead of IoSearch
 import User from "./User";
 import { LuLogOut } from "react-icons/lu";
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,9 +9,23 @@ import withReactContent from 'sweetalert2-react-content';
 
 const UserSideBar = () => {
     const dispatch = useDispatch()
+    const [searchValue, setSearchValue] = useState('')
+    const [users, setUsers] = useState([])
     const { otherUsers, userProfile } = useSelector(state => state.userReducer)
-    // console.log(otherUsers)
     const MySwal = withReactContent(Swal);
+
+    useEffect(() => {
+        if (!searchValue) {
+            setUsers(otherUsers)
+        } else {
+            setUsers(
+                otherUsers.filter(user =>
+                    user.username.toLowerCase().includes(searchValue.toLowerCase()) ||
+                    user.fullName.toLowerCase().includes(searchValue.toLowerCase())
+                )
+            )
+        }
+    }, [searchValue, otherUsers])
 
     const handleLogout = async () => {
         const result = await MySwal.fire({
@@ -48,6 +62,7 @@ const UserSideBar = () => {
             });
         }
     };
+
     return (
         <div className="max-w-[20em] w-full h-screen flex flex-col">
             <div className="flex items-center gap-5 px-4 mt-2">
@@ -61,18 +76,28 @@ const UserSideBar = () => {
 
             <div className="px-1 py-4">
                 <label className="input input-bordered flex items-center gap-2">
-                    <input type="text" className="grow bg-transparent outline-none" placeholder="Search" />
-                    <button className="text-white hover:text-blue-500 cursor-pointer">
-                        <IoSearch size={20} />
-                    </button>
+                    <input
+                        onChange={(e) => setSearchValue(e.target.value)}
+                        value={searchValue}
+                        type="text"
+                        className="grow bg-transparent outline-none"
+                        placeholder="Search"
+                    />
+                    {searchValue && (
+                        <button
+                            type="button"
+                            onClick={() => setSearchValue('')}
+                            className="text-white hover:text-red-400"
+                        >
+                            <RxCross2 size={20} />
+                        </button>
+                    )}
                 </label>
             </div>
             <div className="h-full overflow-y-auto px-3 flex flex-col gap-2">
-                {otherUsers?.map(userDetails => {
-                    return (
-                        <User key={userDetails?._id} userDetails={userDetails} />
-                    )
-                })}
+                {users?.map(userDetails => (
+                    <User key={userDetails?._id} userDetails={userDetails} />
+                ))}
             </div>
             <div className="flex items-center justify-between p-3">
                 <div className="flex items-center gap-4">
@@ -88,9 +113,9 @@ const UserSideBar = () => {
                         <LuLogOut size={24} />
                     </button>
                 </div>
-
             </div>
         </div>
     )
 }
-export default UserSideBar
+
+export default UserSideBar;

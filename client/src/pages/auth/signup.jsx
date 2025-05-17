@@ -7,7 +7,7 @@ import { FaInfoCircle, FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
-import { signUpUserThunk } from "../../store/slice/user/user.thunk";
+import { signUpUserThunk, getOtherUsersThunk } from "../../store/slice/user/user.thunk";
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -99,6 +99,7 @@ const Signup = () => {
         }, 3000);
 
         if (response?.payload?.success) {
+            dispatch(getOtherUsersThunk())
             navigate('/');
         }
     };
