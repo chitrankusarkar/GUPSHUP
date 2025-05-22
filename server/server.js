@@ -7,13 +7,11 @@ import { errorMiddleware } from './middlewares/error.middleware.js'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 
-// Load environment variables
 connectDB()
 const PORT = process.env.PORT
 
-// ✅ Setup CORS correctly
 const allowedOrigins = [
-  "https://gupshup-inky.vercel.app" // ✅ Your frontend deployed URL
+  "https://gupshup-inky.vercel.app"
 ]
 
 app.use(cors({
@@ -25,24 +23,21 @@ app.use(cors({
     }
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Optional but good to have
-  allowedHeaders: ["Content-Type", "Authorization"], // Optional for frontend auth
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 }))
 
 app.use(express.json())
 app.use(cookieParser())
 
-// Routes
 app.get('/', (req, res) => {
   res.send("Working")
 })
 app.use('/api/v1/user', userRoute)
 app.use('/api/v1/message', messageRoute)
 
-// Error middleware
 app.use(errorMiddleware)
 
-// Start server
 server.listen(PORT, () => {
   console.log(`Server running at PORT ${PORT}`)
 })
