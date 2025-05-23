@@ -12,7 +12,8 @@ export const socketSlice = createSlice({
         const socket = io(import.meta.env.VITE_DB_ORIGIN, {
             query: {
                 userId: action.payload
-            }
+            },
+            withCredentials: true
         })
         state.socket = socket
     },
