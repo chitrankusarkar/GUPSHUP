@@ -108,17 +108,19 @@ export const getProfile = asyncHandler(async (req, res, next) => {
 })
 
 export const logout = asyncHandler(async (req, res, next) => {
-    res
-        .status(200)
-        .cookie("token", "", {
-            expires: new Date(Date.now()),
-            httpOnly: true,
-        })
-        .json({
-            success: true,
-            message: "Logout successful!"
-        })
-})
+  res
+    .status(200)
+    .clearCookie("token", {
+      httpOnly: true,
+      secure: true,       
+      sameSite: "None", 
+    })
+    .json({
+      success: true,
+      message: "Logout successful!"
+    });
+});
+
 export const getOtherUsers = asyncHandler(async (req, res, next) => {
     const otherUsers = await User.find({ _id: { $ne: req.user._id } })
     res
