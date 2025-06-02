@@ -72,7 +72,10 @@ export const userSlice = createSlice({
     });
     builder.addCase(getUserProfileThunk.rejected, (state, action) => {
       state.screenLoading = false;
+      state.isAuthenticated = false;
+      state.userProfile = null;
     });
+
 
     // Get-Other-Users
     builder.addCase(getOtherUsersThunk.pending, (state, action) => {
