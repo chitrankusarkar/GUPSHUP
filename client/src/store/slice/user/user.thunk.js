@@ -46,17 +46,21 @@ export const logoutUserThunk = createAsyncThunk("user/logout", async (_, { rejec
     }
 });
 
-export const getUserProfileThunk = createAsyncThunk("user/getProfile", async (_, { rejectWithValue }) => {
+export const getUserProfileThunk = createAsyncThunk(
+  "user/getProfile",
+  async (_, { dispatch, rejectWithValue }) => {
     try {
-        const response = await axiosInstance.get("/user/get-profile")
-        return response.data
+      const response = await axiosInstance.get("/user/get-profile");
+      dispatch(getOtherUsersThunk());
+
+      return response.data;
+    } catch (error) {
+      const errorOutput = error?.response?.data?.errMessage;
+      return rejectWithValue(errorOutput);
     }
-    catch (error) {
-        const errorOutput = error?.response?.data?.errMessage
-        // toast.error(errorOutput)
-        return rejectWithValue(errorOutput)
-    }
-});
+  }
+);
+
 
 export const getOtherUsersThunk = createAsyncThunk(
     "user/getOtherUsers",
