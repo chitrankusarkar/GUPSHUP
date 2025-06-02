@@ -1,18 +1,12 @@
-import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 const PublicRoute = ({ children }) => {
-    const { isAuthenticated, screenLoading } = useSelector(state => state.userReducer);
-    const navigate = useNavigate();
+  const { isAuthenticated, screenLoading } = useSelector(state => state.userReducer);
 
-    useEffect(() => {
-        if (!screenLoading && isAuthenticated) {
-            navigate('/');
-        }
-    }, [screenLoading, isAuthenticated]);
+  if (screenLoading) return null;
 
-    return children;
+  return isAuthenticated ? <Navigate to="/" /> : children;
 };
 
 export default PublicRoute;
