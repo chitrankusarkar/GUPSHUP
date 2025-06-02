@@ -11,7 +11,7 @@ connectDB()
 const PORT = process.env.PORT
 
 const allowedOrigins = [
-"https://gupshup-inky.vercel.app/login"]
+"https://gupshup-inky.vercel.app/login", "https://gupshup-inky.vercel.app"]
 
 app.use(cors({
   origin: function (origin, callback) {
