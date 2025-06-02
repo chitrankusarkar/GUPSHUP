@@ -13,7 +13,6 @@ function App() {
   useEffect(() => {
     (async () => {
       await dispatch(getUserProfileThunk());
-      await dispatch(getOtherUsersThunk());
       setAuthChecked(true);
     })();
   }, []);
