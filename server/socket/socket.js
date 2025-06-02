@@ -9,7 +9,7 @@ const server = http.createServer(app)
 
 const io = new Server(server, {
     cors: {
-        origin: "https://gupshup-lh4u.onrender.com"
+        origin: process.env.CLIENT_URI
     }
 })
 
