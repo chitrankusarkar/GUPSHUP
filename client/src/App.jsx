@@ -17,7 +17,8 @@ function App() {
       setAuthChecked(true);
     })();
   }, []);
-
+console.log("auth:", authChecked)
+console.log("screen:", screenLoading)
   if (screenLoading || !authChecked) {
     return (
       <div className="h-screen w-full flex flex-col justify-center items-center bg-gray-900 text-white animate-fadeIn">
