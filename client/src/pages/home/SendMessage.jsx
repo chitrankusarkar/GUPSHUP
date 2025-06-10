@@ -18,10 +18,14 @@ const SendMessage = () => {
                     <input
                         type="text"
                         placeholder="Type here..."
-                        className="flex-grow bg-transparent input-md outline-none text-white p-2 "
+                        className="flex-grow bg-transparent input-md outline-none text-white p-2"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") handleSendMessage();
+                        }}
                     />
+
                     <button onClick={handleSendMessage} className="text-blue-500 p-2 hover:text-blue-700">
                         <IoIosSend size={24} />
                     </button>
