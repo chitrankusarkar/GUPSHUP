@@ -5,8 +5,8 @@ import { MdAlternateEmail } from "react-icons/md";
 import { PiGenderIntersexThin } from "react-icons/pi";
 import { FaInfoCircle, FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from 'react-hot-toast'
-import { useDispatch, useSelector } from 'react-redux'
+import { toast } from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
 import { signUpUserThunk, getOtherUsersThunk } from "../../store/slice/user/user.thunk";
 
 const Signup = () => {
@@ -15,6 +15,8 @@ const Signup = () => {
     const [showPasswordPolicy, setShowPasswordPolicy] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isSigningUp, setIsSigningUp] = useState(false);
+
     const [signupData, setSignupData] = useState({
         fullName: "",
         username: "",
@@ -24,6 +26,12 @@ const Signup = () => {
         gender: "" 
     });
 
+    const { isAuthenticated } = useSelector((state) => state.userReducer);
+
+    useEffect(() => {
+        if (isAuthenticated) navigate('/');
+    }, [isAuthenticated, navigate]);
+
     const handleInputChange = (e) => {
         setSignupData((prev) => ({
             ...prev,
@@ -31,15 +39,12 @@ const Signup = () => {
         }));
     };
 
-    const { isAuthenticated } = useSelector(
-        (state) => state.userReducer
-    )
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleSignup();
+        }
+    };
 
-    useEffect(() => {
-        if (isAuthenticated) navigate('/')
-    }, [])
-
-    const [isSigningUp, setIsSigningUp] = useState(false);
     const handleSignup = async () => {
         const fullNameRegex = /^[a-zA-Z\s]{2,}$/;
         if (!fullNameRegex.test(signupData.fullName)) {
@@ -59,14 +64,20 @@ const Signup = () => {
             return;
         }
 
-        if (!signupData.password) {
+        const password = signupData.password;
+        if (!password) {
             toast.error('Enter password!');
             return;
         }
 
-        const password = signupData.password;
-
-        if (password.length < 6 || password.length > 12 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password) || !/[!@#$%^&*]/.test(password)) {
+        if (
+            password.length < 6 ||
+            password.length > 12 ||
+            !/[a-z]/.test(password) ||
+            !/[A-Z]/.test(password) ||
+            !/\d/.test(password) ||
+            !/[!@#$%^&*]/.test(password)
+        ) {
             toast.error('Enter a valid password');
             return;
         }
@@ -76,7 +87,6 @@ const Signup = () => {
             return;
         }
 
-        // Gender validation
         if (!signupData.gender) {
             toast.error('Please select your gender');
             return;
@@ -99,7 +109,7 @@ const Signup = () => {
         }, 3000);
 
         if (response?.payload?.success) {
-            dispatch(getOtherUsersThunk())
+            dispatch(getOtherUsersThunk());
             navigate('/');
         }
     };
@@ -108,18 +118,43 @@ const Signup = () => {
         <div className="min-h-screen flex justify-center items-center p-5">
             <div className="max-w-[50rem] w-full flex flex-col gap-2 bg-base-200 p-6 rounded-lg">
                 <h2 className="text-2xl text-center pb-6">Please Signup :)</h2>
+
                 <label className="input input-bordered flex items-center gap-2">
                     <FaUser />
-                    <input type="text" name="fullName" className="grow" placeholder="Full Name" onChange={handleInputChange} />
+                    <input
+                        type="text"
+                        name="fullName"
+                        className="grow"
+                        placeholder="Full Name"
+                        onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
+                    />
                 </label>
+
                 <label className="input input-bordered flex items-center gap-2">
                     <FaUser />
-                    <input type="text" name="username" className="grow" placeholder="Username" onChange={handleInputChange} />
+                    <input
+                        type="text"
+                        name="username"
+                        className="grow"
+                        placeholder="Username"
+                        onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
+                    />
                 </label>
+
                 <label className="input input-bordered flex items-center gap-2">
                     <MdAlternateEmail />
-                    <input type="text" name="email" className="grow" placeholder="E-mail" onChange={handleInputChange} />
+                    <input
+                        type="text"
+                        name="email"
+                        className="grow"
+                        placeholder="E-mail"
+                        onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
+                    />
                 </label>
+
                 <label className="input input-bordered flex items-center gap-2">
                     <TbLockPassword />
                     <input
@@ -128,6 +163,7 @@ const Signup = () => {
                         className="grow"
                         placeholder="Password"
                         onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
                     />
                     <button
                         type="button"
@@ -144,6 +180,7 @@ const Signup = () => {
                         <FaInfoCircle />
                     </button>
                 </label>
+
                 {showPasswordPolicy && (
                     <div className="text-sm text-gray-600 mt-2">
                         <ul>
@@ -155,6 +192,7 @@ const Signup = () => {
                         </ul>
                     </div>
                 )}
+
                 <label className="input input-bordered flex items-center gap-2">
                     <TbLockPassword />
                     <input
@@ -163,6 +201,7 @@ const Signup = () => {
                         className="grow"
                         placeholder="Confirm Password"
                         onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
                     />
                     <button
                         type="button"
@@ -172,20 +211,37 @@ const Signup = () => {
                         {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                     </button>
                 </label>
+
                 <div className="input input-bordered flex items-center gap-5">
                     <PiGenderIntersexThin />
                     <label htmlFor="male" className="flex gap-2 items-center">
-                        <input id="male" type="radio" name="gender" value="male" className="radio cursor-pointer" onChange={handleInputChange} />
+                        <input
+                            id="male"
+                            type="radio"
+                            name="gender"
+                            value="male"
+                            className="radio cursor-pointer"
+                            onChange={handleInputChange}
+                        />
                         Male
                     </label>
                     <label htmlFor="female" className="flex gap-2 items-center">
-                        <input id="female" type="radio" name="gender" value="female" className="radio cursor-pointer" onChange={handleInputChange} />
+                        <input
+                            id="female"
+                            type="radio"
+                            name="gender"
+                            value="female"
+                            className="radio cursor-pointer"
+                            onChange={handleInputChange}
+                        />
                         Female
                     </label>
                 </div>
+
                 <button onClick={handleSignup} className="btn btn-dash" disabled={isSigningUp}>
                     {isSigningUp ? "Signing up..." : "Signup"}
                 </button>
+
                 <p>
                     Already have an account? &nbsp;
                     <Link to='/login' className="underline">Log In</Link>
