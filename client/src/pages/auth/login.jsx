@@ -59,14 +59,19 @@ const Login = () => {
             navigate('/')
         }
     };
-
+    
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleLogin();
+        }
+    };
     return (
         <div className="min-h-screen w-full flex justify-center items-center p-5">
             <div className="max-w-[50rem] flex flex-col gap-2 bg-base-200 p-6 rounded-lg">
                 <h2 className="text-2xl text-center pb-6">Please Login :)</h2>
                 <label className="input input-bordered flex items-center gap-2">
                     <FaUser />
-                    <input type="text" name="username_or_email" className="grow" placeholder="Username or email" onChange={handleInputChange} />
+                    <input type="text" name="username_or_email" className="grow" placeholder="Username or email" onChange={handleInputChange} onKeyDown={handleKeyDown} />
                 </label>
                 <label className="input input-bordered flex items-center gap-2">
                     <TbLockPassword />
@@ -76,6 +81,7 @@ const Login = () => {
                         className="grow"
                         placeholder="Password"
                         onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
                     />
                     <button
                         type="button"
