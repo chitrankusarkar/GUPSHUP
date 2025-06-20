@@ -11,6 +11,7 @@ const User = ({ userDetails, isStatic = false }) => {
     const handleUserClick = () => {
         if (!isStatic) {
             dispatch(setSelectedUser(userDetails));
+            if(onCloseMobile) onCloseMobile()
         }
     }
     const isSelected = userDetails?._id === selectedUser?._id;
