@@ -51,6 +51,7 @@ export const sendMessage = asyncHandler(async (req, res, next) => {
 export const getMessages = asyncHandler(async (req, res, next) => {
     const myId = req.user._id;
     const otherId = req.params.otherParticipantId;
+
     const { page = 1, limit = 20 } = req.query;
     const skip = (page - 1) * limit;
 
@@ -59,7 +60,13 @@ export const getMessages = asyncHandler(async (req, res, next) => {
     });
 
     if (!conversation) {
-        return res.status(200).json({ success: true, responseData: { messages: [], hasMore: false } });
+        return res.status(200).json({
+            success: true,
+            responseData: {
+                messages: [],
+                hasMore: false
+            }
+        });
     }
 
     const totalMessages = conversation.messages.length;
@@ -71,6 +78,7 @@ export const getMessages = asyncHandler(async (req, res, next) => {
 
     const finalMessages = messages.reverse();
 
+    // ✅ Mark messages as read
     await Message.updateMany(
         {
             _id: { $in: finalMessages.map(m => m._id) },
@@ -79,18 +87,6 @@ export const getMessages = asyncHandler(async (req, res, next) => {
         },
         { $set: { status: "read" } }
     );
-
-    finalMessages.forEach(msg => {
-        if (msg.receiverId.toString() === myId.toString()) {
-            const socketId = getSocketId(msg.senderId.toString());
-            if (socketId) {
-                io.to(socketId).emit("messageRead", {
-                    messageId: msg._id,
-                    readerId: myId
-                });
-            }
-        }
-    });
 
     res.status(200).json({
         success: true,

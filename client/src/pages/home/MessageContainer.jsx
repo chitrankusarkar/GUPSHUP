@@ -9,7 +9,7 @@ import moment from "moment";
 import axios from "axios";
 import { io } from "socket.io-client";
 
-const socket = io(process.env.REACT_APP_SOCKET_URI, {
+const socket = io(import.meta.env.VITE_DB_ORIGIN, {
     query: { userId: localStorage.getItem("userId") }
 });
 
@@ -33,8 +33,10 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
             const res = await axios.get(
                 `/api/message/get-messages/${selectedUser._id}?page=${page}&limit=${MESSAGES_PER_PAGE}`
             );
-            const newMessages = res.data.responseData.messages;
-            setHasMore(res.data.responseData.hasMore);
+            const data = res.data.responseData;
+            const newMessages = Array.isArray(data.messages) ? data.messages : [];
+            setHasMore(data.hasMore);
+
             setAllMessages(prev => initial ? newMessages : [...newMessages, ...prev]);
 
             if (initial) {
@@ -45,7 +47,7 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
                 }, 50);
             }
         } catch (err) {
-            console.error(err);
+            console.error("Failed to load messages:", err);
         }
 
         isFetching.current = false;
@@ -74,20 +76,17 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
     useEffect(() => {
         if (!socket || !selectedUser) return;
 
-        const typingHandler = ({ from }) => {
+        socket.on("userTyping", ({ from }) => {
             if (from === selectedUser._id) setIsTyping(true);
-        };
+        });
 
-        const stopTypingHandler = ({ from }) => {
+        socket.on("userStopTyping", ({ from }) => {
             if (from === selectedUser._id) setIsTyping(false);
-        };
-
-        socket.on("userTyping", typingHandler);
-        socket.on("userStopTyping", stopTypingHandler);
+        });
 
         return () => {
-            socket.off("userTyping", typingHandler);
-            socket.off("userStopTyping", stopTypingHandler);
+            socket.off("userTyping");
+            socket.off("userStopTyping");
         };
     }, [selectedUser]);
 
@@ -102,8 +101,11 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
             </div>
         );
     }
+
     const groupedMessages = {};
-    allMessages.forEach((msg) => {
+    const messages = Array.isArray(allMessages) ? allMessages : [];
+
+    messages.forEach((msg) => {
         const now = moment();
         const msgMoment = moment(msg.createdAt);
         let key = msgMoment.format("MMMM D");
@@ -124,7 +126,7 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
                         ←
                     </button>
                 </div>
-                <User userDetails={selectedUser} isStatic={true} />
+                <User userDetails={selectedUser} isStatic={true} onCloseMobile={onOpenSidebarMobile} />
                 <div className="md:hidden ml-auto">
                     <button onClick={onOpenSidebarMobile} className="text-sm underline">Users</button>
                 </div>
