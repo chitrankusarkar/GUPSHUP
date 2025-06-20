@@ -6,11 +6,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logoutUserThunk } from "../../store/slice/user/user.thunk.js";
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import { useNavigate } from "react-router-dom"; // <-- added
+import { useNavigate } from "react-router-dom"; 
 
 const UserSideBar = ({ onCloseMobile }) => {
     const dispatch = useDispatch();
-    const navigate = useNavigate(); // <-- added
+    const navigate = useNavigate(); 
     const [searchValue, setSearchValue] = useState('');
     const [users, setUsers] = useState([]);
     const { otherUsers, userProfile } = useSelector(state => state.userReducer);
@@ -62,7 +62,7 @@ const UserSideBar = ({ onCloseMobile }) => {
                 background: '#1f2937',
                 color: '#f3f4f6'
             });
-            navigate("/login"); // <-- added
+            navigate("/login");
         }
     };
 
@@ -103,7 +103,6 @@ const UserSideBar = ({ onCloseMobile }) => {
                 </label>
             </div>
 
-            {/* ✅ Updated to pass onCloseMobile */}
             <div className="h-full overflow-y-auto px-3 flex flex-col gap-2">
                 {users?.map(userDetails => (
                     <User key={userDetails?._id} userDetails={userDetails} onCloseMobile={onCloseMobile} />
