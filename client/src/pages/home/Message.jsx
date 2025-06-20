@@ -14,18 +14,17 @@ const Message = ({ messageDetails }) => {
 
     const isSender = userProfile?._id === messageDetails?.senderId;
     const avatar = isSender ? userProfile?.avatar : selectedUser?.avatar;
+
     const formatMessageTime = (timestamp) => {
         const now = moment();
-        const time = moment(timestamp);
+        const msgTime = moment(timestamp);
 
-        if (now.isSame(time, 'day')) {
-            return time.format('h:mm A'); 
-        } else if (now.clone().subtract(1, 'day').isSame(time, 'day')) {
-            return 'Yesterday';
-        } else if (now.diff(time, 'days') < 7) {
-            return time.format('dddd'); 
+        if (now.isSame(msgTime, 'day')) {
+            return msgTime.format('h:mm A');
+        } else if (now.clone().subtract(1, 'day').isSame(msgTime, 'day')) {
+            return `Yesterday, ${msgTime.format('h:mm A')}`;
         } else {
-            return time.format('MMM D'); 
+            return msgTime.format('MMMM D, h:mm A'); 
         }
     };
 
@@ -41,7 +40,7 @@ const Message = ({ messageDetails }) => {
             </div>
             <div className="chat-header">
                 <time className="text-xs opacity-50">
-                    {formatMessageTime(messageDetails?.createdAt)} 
+                    {formatMessageTime(messageDetails?.createdAt)}
                 </time>
             </div>
             <div className="chat-bubble">{messageDetails?.message}</div>
