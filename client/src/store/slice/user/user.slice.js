@@ -26,7 +26,6 @@ export const userSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    // Login
     builder.addCase(loginUserThunk.pending, (state) => {
       state.buttonLoading = true;
     });
@@ -39,7 +38,6 @@ export const userSlice = createSlice({
       state.buttonLoading = false;
     });
 
-    // Signup
     builder.addCase(signUpUserThunk.pending, (state) => {
       state.buttonLoading = true;
     });
@@ -52,7 +50,6 @@ export const userSlice = createSlice({
       state.buttonLoading = false;
     });
 
-    // Logout
     builder.addCase(logoutUserThunk.pending, (state) => {
       state.buttonLoading = true;
     });
@@ -68,7 +65,6 @@ export const userSlice = createSlice({
       state.buttonLoading = false;
     });
 
-    // Get User Profile
     builder.addCase(getUserProfileThunk.pending, (state) => {
       state.screenLoading = true;
     });
@@ -83,7 +79,7 @@ export const userSlice = createSlice({
       state.userProfile = null;
     });
 
-   builder.addCase(getOtherUsersThunk.fulfilled, (state, action) => {
+    builder.addCase(getOtherUsersThunk.fulfilled, (state, action) => {
       state.screenLoading = false;
       state.otherUsers = action.payload?.responseData;
     });

@@ -1,63 +1,102 @@
-import Message from "../models/message.model.js"
-import Conversation from "../models/conversation.model.js"
-import { asyncHandler } from "../utilities/asyncHandler.utility.js"
-import { errorHandler } from "../utilities/errorHandler.utility.js"
-import { getSocketId, io } from "../socket/socket.js"
+import Message from "../models/message.model.js";
+import Conversation from "../models/conversation.model.js";
+import { asyncHandler } from "../utilities/asyncHandler.utility.js";
+import { errorHandler } from "../utilities/errorHandler.utility.js";
+import { getSocketId, io } from "../socket/socket.js";
 
 export const sendMessage = asyncHandler(async (req, res, next) => {
-    const senderId = req.user._id
-    const receiverId = req.params.receiverId
-    const message = req.body.message
+    const senderId = req.user._id;
+    const receiverId = req.params.receiverId;
+    const message = req.body.message;
 
     if (!senderId || !receiverId || !message) {
-        return next(new errorHandler("All fields are required", 400))
+        return next(new errorHandler("All fields are required", 400));
     }
 
     let conversation = await Conversation.findOne({
         participants: { $all: [senderId, receiverId] },
-    })
+    });
 
-    if(!conversation) {
+    if (!conversation) {
         conversation = await Conversation.create({
-            participants: [senderId, receiverId]
-        })
+            participants: [senderId, receiverId],
+        });
     }
 
-    const newMessage = await Message.create({
+    let newMessage = await Message.create({
         senderId,
         receiverId,
-        message
-    })
+        message,
+        status: "sent"
+    });
 
-    if(newMessage) {
-        conversation.messages.push(newMessage._id)
-        await conversation.save()
+    if (newMessage) {
+        conversation.messages.push(newMessage._id);
+        await conversation.save();
     }
-    
-    // Socket-io work done here
-    const socketId = getSocketId(receiverId)
-    io.to(socketId).emit("newMessage", newMessage)
+
+    const socketId = getSocketId(receiverId);
+    if (socketId) {
+        io.to(socketId).emit("newMessage", newMessage);
+        await Message.findByIdAndUpdate(newMessage._id, { status: "delivered" });
+        newMessage.status = "delivered";
+    }
 
     res.status(200).json({
         success: true,
-        responseData: newMessage
-    })
-})
+        responseData: newMessage,
+    });
+});
 
 export const getMessages = asyncHandler(async (req, res, next) => {
-    const myId = req.user._id
-    const otherParticipantId = req.params.otherParticipantId
+    const myId = req.user._id;
+    const otherId = req.params.otherParticipantId;
+    const { page = 1, limit = 20 } = req.query;
+    const skip = (page - 1) * limit;
 
-    if (!myId || !otherParticipantId) {
-        return next(new errorHandler("All fields are required", 400))
+    const conversation = await Conversation.findOne({
+        participants: { $all: [myId, otherId] },
+    });
+
+    if (!conversation) {
+        return res.status(200).json({ success: true, responseData: { messages: [], hasMore: false } });
     }
 
-    let conversation = await Conversation.findOne({
-        participants: { $all: [myId, otherParticipantId] },
-    }).populate("messages")
+    const totalMessages = conversation.messages.length;
+
+    const messages = await Message.find({ _id: { $in: conversation.messages } })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit));
+
+    const finalMessages = messages.reverse();
+
+    await Message.updateMany(
+        {
+            _id: { $in: finalMessages.map(m => m._id) },
+            receiverId: myId,
+            status: { $in: ["sent", "delivered"] }
+        },
+        { $set: { status: "read" } }
+    );
+
+    finalMessages.forEach(msg => {
+        if (msg.receiverId.toString() === myId.toString()) {
+            const socketId = getSocketId(msg.senderId.toString());
+            if (socketId) {
+                io.to(socketId).emit("messageRead", {
+                    messageId: msg._id,
+                    readerId: myId
+                });
+            }
+        }
+    });
 
     res.status(200).json({
         success: true,
-        responseData: conversation
-    })
-})
+        responseData: {
+            messages: finalMessages,
+            hasMore: skip + limit < totalMessages
+        }
+    });
+});

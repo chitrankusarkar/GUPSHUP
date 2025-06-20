@@ -15,17 +15,12 @@ const Message = ({ messageDetails }) => {
     const isSender = userProfile?._id === messageDetails?.senderId;
     const avatar = isSender ? userProfile?.avatar : selectedUser?.avatar;
 
-    const formatMessageTime = (timestamp) => {
+    const formatTime = (timestamp) => {
         const now = moment();
         const msgTime = moment(timestamp);
-
-        if (now.isSame(msgTime, 'day')) {
-            return msgTime.format('h:mm A');
-        } else if (now.clone().subtract(1, 'day').isSame(msgTime, 'day')) {
-            return `Yesterday, ${msgTime.format('h:mm A')}`;
-        } else {
-            return msgTime.format('MMMM D, h:mm A'); 
-        }
+        if (now.isSame(msgTime, 'day')) return msgTime.format('h:mm A');
+        if (now.clone().subtract(1, 'day').isSame(msgTime, 'day')) return `Yesterday, ${msgTime.format('h:mm A')}`;
+        return msgTime.format('MMMM D, h:mm A');
     };
 
     return (
@@ -39,11 +34,24 @@ const Message = ({ messageDetails }) => {
                 </div>
             </div>
             <div className="chat-header">
-                <time className="text-xs opacity-50">
-                    {formatMessageTime(messageDetails?.createdAt)}
-                </time>
+                <time className="text-xs opacity-50">{formatTime(messageDetails?.createdAt)}</time>
             </div>
-            <div className="chat-bubble">{messageDetails?.message}</div>
+            <div className="chat-bubble">
+                {messageDetails?.message}
+                {isSender && (
+                    <span
+                        className={`text-[10px] ml-2 ${
+                            messageDetails?.status === "read" ? "text-blue-500" : "text-gray-400"
+                        }`}
+                    >
+                        {messageDetails?.status === "read"
+                            ? "✓✓"
+                            : messageDetails?.status === "delivered"
+                            ? "✓✓"
+                            : "✓"}
+                    </span>
+                )}
+            </div>
         </div>
     );
 };
