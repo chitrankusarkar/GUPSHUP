@@ -3,7 +3,7 @@ import UserSideBar from "./UserSidebar";
 import MessageContainer from "./MessageContainer";
 import { useDispatch, useSelector } from "react-redux";
 import { initializeSocket, setOnlineUsers } from "../../store/slice/socket/socket.slice";
-import { setNewMessage } from "../../store/slice/message/message.slice";
+import { addIncomingMessage } from "../../store/slice/message/message.slice";
 import { getOtherUsersThunk } from "../../store/slice/user/user.thunk";
 
 const Home = () => {
@@ -28,7 +28,7 @@ const Home = () => {
     });
 
     socket.on("newMessage", (newMessage) => {
-      dispatch(setNewMessage(newMessage));
+      dispatch(addIncomingMessage(newMessage));
     });
 
     return () => {

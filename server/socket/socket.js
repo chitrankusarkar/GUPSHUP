@@ -3,7 +3,7 @@ dotenv.config();
 import { Server } from 'socket.io';
 import express from 'express';
 import http from 'http';
-
+import { addIncomingMessage } from '../../client/src/store/slice/message/message.slice';
 const app = express();
 const server = http.createServer(app);
 
@@ -40,6 +40,9 @@ io.on("connection", (socket) => {
         if (senderSocket) {
             io.to(senderSocket).emit("messageRead", { messageId, readerId });
         }
+    });
+    socket.on("newMessage", (newMessage) => {
+        dispatch(addIncomingMessage(newMessage));
     });
 
     socket.on("disconnect", () => {
