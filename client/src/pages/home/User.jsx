@@ -1,37 +1,33 @@
 import React from "react";
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from "react-redux";
 import { setSelectedUser } from "../../store/slice/user/user.slice";
+const User = ({ userDetails, onCloseMobile = () => {}, isStatic = false }) => {
+  const dispatch = useDispatch();
+  const { selectedUser } = useSelector((state) => state.userReducer);
 
-const User = ({ userDetails, isStatic = false }) => {
-    const dispatch = useDispatch();
-    const { selectedUser } = useSelector(state => state.userReducer)
-    const { onlineUsers } = useSelector((state) => state.socketReducer)
-    const isUserOnline = onlineUsers?.includes(userDetails?._id)
+  const handleUserSelect = () => {
+    dispatch(setSelectedUser(userDetails));
+    onCloseMobile();
+  };
 
-    const handleUserClick = () => {
-        if (!isStatic) {
-            dispatch(setSelectedUser(userDetails));
-            if(onCloseMobile) onCloseMobile()
-        }
-    }
-    const isSelected = userDetails?._id === selectedUser?._id;
+  return (
+    <div
+      onClick={!isStatic ? handleUserSelect : undefined}
+      className={`flex items-center gap-4 p-3 hover:bg-gray-700 cursor-pointer ${
+        selectedUser?._id === userDetails?._id && "bg-gray-700"
+      }`}
+    >
+      <img
+        src={userDetails?.avatar}
+        alt="avatar"
+        className="w-10 h-10 rounded-full object-cover"
+      />
+      <div className="flex flex-col">
+        <p className="text-white font-medium">{userDetails?.fullName}</p>
+        <p className="text-white/60 text-sm">@{userDetails?.username}</p>
+      </div>
+    </div>
+  );
+};
 
-    return (
-        <div
-            onClick={handleUserClick}
-            className={`flex gap-6 items-center rounded-lg py-1 px-2 ${!isStatic ? 'hover:bg-gray-600 cursor-pointer' : ''
-                } ${isSelected && !isStatic ? 'bg-gray-600' : ''}`}
-        >
-            <div className={`avatar ${isUserOnline && 'online'}`}>
-                <div className="w-12 rounded-full">
-                    <img src={userDetails?.avatar} />
-                </div>
-            </div>
-            <div>
-                <h2 className="line-clamp-1">{userDetails?.fullName}</h2>
-                <p className="text-xs">{userDetails?.username}</p>
-            </div>
-        </div>
-    )
-}
-export default User
+export default User;
