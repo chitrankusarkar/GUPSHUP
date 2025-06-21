@@ -8,18 +8,20 @@ import { getOtherUsersThunk } from "../../store/slice/user/user.thunk";
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { isAuthenticated, userProfile, selectedUser } = useSelector((state) => state.userReducer);
+  const { isAuthenticated, userProfile } = useSelector((state) => state.userReducer);
   const { socket } = useSelector((state) => state.socketReducer);
 
   const [showSidebar, setShowSidebar] = useState(true);
 
+  // ✅ Get users + initialize socket when userProfile is ready
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && userProfile?._id) {
       dispatch(getOtherUsersThunk());
-      dispatch(initializeSocket(userProfile?._id));
+      dispatch(initializeSocket(userProfile._id));
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, userProfile]);
 
+  // ✅ Attach socket events
   useEffect(() => {
     if (!socket) return;
 
@@ -32,14 +34,18 @@ const Home = () => {
     });
 
     return () => {
-      socket.close();
+      socket.disconnect(); // ✅ use disconnect for clean teardown
     };
   }, [socket]);
 
   return (
     <div className="flex flex-col md:flex-row h-screen w-full relative">
       {/* Sidebar (toggleable on small screens) */}
-      <div className={`${showSidebar ? "block" : "hidden"} md:block absolute md:static z-10 w-full md:w-[20em] h-full`}>
+      <div
+        className={`${
+          showSidebar ? "block" : "hidden"
+        } md:block absolute md:static z-10 w-full md:w-[20em] h-full`}
+      >
         <UserSideBar onCloseMobile={() => setShowSidebar(false)} />
       </div>
 
