@@ -2,7 +2,6 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { axiosInstance } from "../../../components/utilities/axiosinstance.js";
 import { toast } from "react-hot-toast";
 
-// ✅ Get Messages (Paginated)
 export const getMessageThunk = createAsyncThunk(
   "message/getMessages",
   async ({ receiverId, page = 1 }, { rejectWithValue }) => {
@@ -10,7 +9,6 @@ export const getMessageThunk = createAsyncThunk(
       const res = await axiosInstance.get(`/message/get-messages/${receiverId}?page=${page}`);
       const data = res.data;
 
-      // ✅ Ensure payload always has valid array
       if (!Array.isArray(data.responseData?.messages)) {
         data.responseData.messages = [];
       }
@@ -24,7 +22,6 @@ export const getMessageThunk = createAsyncThunk(
   }
 );
 
-// ✅ Send Message
 export const sendMessageThunk = createAsyncThunk(
   "message/sendMessage",
   async ({ receiverId, message }, { rejectWithValue }) => {

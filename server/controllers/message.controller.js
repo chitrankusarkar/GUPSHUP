@@ -27,7 +27,7 @@ export const sendMessage = asyncHandler(async (req, res, next) => {
         senderId,
         receiverId,
         message,
-        status: "sent"
+        status: "sent",
     });
 
     if (newMessage) {
@@ -35,9 +35,10 @@ export const sendMessage = asyncHandler(async (req, res, next) => {
         await conversation.save();
     }
 
-    const socketId = getSocketId(receiverId);
-    if (socketId) {
-        io.to(socketId).emit("newMessage", newMessage);
+    const receiverSocketId = getSocketId(receiverId);
+    if (receiverSocketId) {
+        io.to(receiverSocketId).emit("newMessage", newMessage);
+
         await Message.findByIdAndUpdate(newMessage._id, { status: "delivered" });
         newMessage.status = "delivered";
     }
@@ -51,6 +52,10 @@ export const sendMessage = asyncHandler(async (req, res, next) => {
 export const getMessages = asyncHandler(async (req, res, next) => {
     const myId = req.user._id;
     const otherId = req.params.otherParticipantId;
+
+    if (!myId || !otherId) {
+        return next(new errorHandler("All fields are required", 400));
+    }
 
     const { page = 1, limit = 20 } = req.query;
     const skip = (page - 1) * limit;
@@ -72,21 +77,32 @@ export const getMessages = asyncHandler(async (req, res, next) => {
     const totalMessages = conversation.messages.length;
 
     const messages = await Message.find({ _id: { $in: conversation.messages } })
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1 }) 
         .skip(skip)
         .limit(Number(limit));
 
-    const finalMessages = messages.reverse();
+    const finalMessages = messages.reverse(); 
 
-    // ✅ Mark messages as read
     await Message.updateMany(
         {
-            _id: { $in: finalMessages.map(m => m._id) },
+            _id: { $in: finalMessages.map((m) => m._id) },
             receiverId: myId,
-            status: { $in: ["sent", "delivered"] }
+            status: { $in: ["sent", "delivered"] },
         },
         { $set: { status: "read" } }
     );
+
+    finalMessages.forEach((msg) => {
+        if (msg.receiverId.toString() === myId.toString()) {
+            const senderSocketId = getSocketId(msg.senderId.toString());
+            if (senderSocketId) {
+                io.to(senderSocketId).emit("messageRead", {
+                    messageId: msg._id,
+                    readerId: myId
+                });
+            }
+        }
+    });
 
     res.status(200).json({
         success: true,

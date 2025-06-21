@@ -28,7 +28,7 @@ const messageSlice = createSlice({
       const res = action.payload?.responseData;
       const newMessages = Array.isArray(res?.messages) ? res.messages : [];
       state.hasMore = res?.hasMore ?? false;
-      state.messages = [...newMessages, ...state.messages]; // prepend older messages
+      state.messages = [...newMessages, ...state.messages];
     });
 
     builder.addCase(sendMessageThunk.fulfilled, (state, action) => {

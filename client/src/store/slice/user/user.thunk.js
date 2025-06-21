@@ -3,7 +3,6 @@ import { axiosInstance } from "../../../components/utilities/axiosinstance.js";
 import { toast } from "react-hot-toast";
 import { initializeSocket } from "../socket/socket.slice.js";
 
-// ✅ Get Other Users
 export const getOtherUsersThunk = createAsyncThunk(
   "user/getOtherUsers",
   async (_, { rejectWithValue }) => {
@@ -17,7 +16,6 @@ export const getOtherUsersThunk = createAsyncThunk(
   }
 );
 
-// ✅ Login
 export const loginUserThunk = createAsyncThunk(
   "user/login",
   async ({ username_or_email, password }, { dispatch, rejectWithValue }) => {
@@ -39,7 +37,6 @@ export const loginUserThunk = createAsyncThunk(
   }
 );
 
-// ✅ Sign Up
 export const signUpUserThunk = createAsyncThunk(
   "user/signup",
   async ({ fullName, username, email, password, gender }, { dispatch, rejectWithValue }) => {
@@ -64,7 +61,6 @@ export const signUpUserThunk = createAsyncThunk(
   }
 );
 
-// ✅ Logout
 export const logoutUserThunk = createAsyncThunk(
   "user/logout",
   async (_, { rejectWithValue }) => {
@@ -79,7 +75,6 @@ export const logoutUserThunk = createAsyncThunk(
   }
 );
 
-// ✅ Get Profile
 export const getUserProfileThunk = createAsyncThunk(
   "user/getProfile",
   async (_, { dispatch, rejectWithValue }) => {
