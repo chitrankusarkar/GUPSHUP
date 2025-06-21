@@ -21,12 +21,11 @@ export const getMessageThunk = createAsyncThunk(
     }
   }
 );
-
 export const sendMessageThunk = createAsyncThunk(
   "message/sendMessage",
   async ({ receiverId, message }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post(`/message/send-message/${receiverId}`, { message });
+      const res = await axiosInstance.post(`/message/send/${receiverId}`, { message });
       return res.data;
     } catch (error) {
       const errorOutput = error?.response?.data?.errMessage || "Message send failed.";
