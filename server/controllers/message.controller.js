@@ -38,9 +38,13 @@ export const sendMessage = asyncHandler(async (req, res, next) => {
     const receiverSocketId = getSocketId(receiverId);
     if (receiverSocketId) {
         io.to(receiverSocketId).emit("newMessage", newMessage);
-
         await Message.findByIdAndUpdate(newMessage._id, { status: "delivered" });
         newMessage.status = "delivered";
+    }
+
+    const senderSocketId = getSocketId(senderId);
+    if (senderSocketId) {
+        io.to(senderSocketId).emit("newMessage", newMessage);
     }
 
     res.status(200).json({
@@ -81,7 +85,7 @@ export const getMessages = asyncHandler(async (req, res, next) => {
         .skip(skip)
         .limit(Number(limit));
 
-    const finalMessages = messages.reverse(); 
+    const finalMessages = messages.reverse();
 
     await Message.updateMany(
         {

@@ -6,21 +6,14 @@ import Message from "./Message";
 import User from "./User";
 import { setSelectedUser } from "../../store/slice/user/user.slice";
 import moment from "moment";
-import axios from "axios";
-import { io } from "socket.io-client";
-
-const socket = io(import.meta.env.VITE_DB_ORIGIN, {
-  query: { userId: localStorage.getItem("userId") }
-});
-
-const MESSAGES_PER_PAGE = 20;
+import { getMessageThunk } from "../../store/slice/message/message.thunk";
+import { clearMessages } from "../../store/slice/message/message.slice";
 
 const MessageContainer = ({ onOpenSidebarMobile }) => {
   const dispatch = useDispatch();
   const { selectedUser, userProfile } = useSelector((state) => state.userReducer);
+  const { messages, hasMore } = useSelector((state) => state.messageReducer);
   const [page, setPage] = useState(1);
-  const [allMessages, setAllMessages] = useState([]);
-  const [hasMore, setHasMore] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
   const scrollContainerRef = useRef(null);
   const isFetching = useRef(false);
@@ -29,35 +22,22 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
     if (!selectedUser?._id || isFetching.current || (!hasMore && !initial)) return;
     isFetching.current = true;
 
-    try {
-      const res = await axios.get(
-        `/api/message/get-messages/${selectedUser._id}?page=${page}&limit=${MESSAGES_PER_PAGE}`
-      );
-      const data = res.data?.responseData || {};
-      const newMessages = Array.isArray(data.messages) ? data.messages : [];
-
-      setHasMore(data.hasMore ?? false);
-      setAllMessages((prev) => (initial ? newMessages : [...newMessages, ...prev]));
-
-      if (initial) {
-        setTimeout(() => {
-          if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
-          }
-        }, 50);
-      }
-    } catch (err) {
-      console.error("Failed to load messages:", err);
-    }
-
+    await dispatch(getMessageThunk({ receiverId: selectedUser._id, page }));
     isFetching.current = false;
+
+    if (initial) {
+      setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+        }
+      }, 100);
+    }
   };
 
   useEffect(() => {
     if (selectedUser?._id) {
       setPage(1);
-      setAllMessages([]);
-      setHasMore(true);
+      dispatch(clearMessages());
       loadMessages(true);
     }
   }, [selectedUser]);
@@ -73,23 +53,6 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
     }
   };
 
-  useEffect(() => {
-    if (!socket || !selectedUser) return;
-
-    socket.on("userTyping", ({ from }) => {
-      if (from === selectedUser._id) setIsTyping(true);
-    });
-
-    socket.on("userStopTyping", ({ from }) => {
-      if (from === selectedUser._id) setIsTyping(false);
-    });
-
-    return () => {
-      socket.off("userTyping");
-      socket.off("userStopTyping");
-    };
-  }, [selectedUser]);
-
   if (!selectedUser) {
     return (
       <div className="h-full w-full flex flex-col items-center justify-center bg-gray-900 text-white text-center px-4">
@@ -103,8 +66,6 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
   }
 
   const groupedMessages = {};
-  const messages = Array.isArray(allMessages) ? allMessages : [];
-
   messages.forEach((msg) => {
     const now = moment();
     const msgMoment = moment(msg.createdAt);
@@ -152,7 +113,7 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
         )}
       </div>
 
-      <SendMessage socket={socket} />
+      <SendMessage />
     </div>
   );
 };

@@ -4,7 +4,6 @@ import { getMessages, sendMessage } from '../controllers/message.controller.js';
 
 const router = express.Router();
 
-// ✅ Fixed route path
 router.post("/send/:receiverId", isAuthenticated, sendMessage);
 router.get("/get-messages/:otherParticipantId", isAuthenticated, getMessages);
 
