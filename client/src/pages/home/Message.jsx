@@ -14,6 +14,7 @@ const Message = ({ messageDetails }) => {
 
   const isSender = userProfile?._id === messageDetails?.senderId;
   const avatar = isSender ? userProfile?.avatar : selectedUser?.avatar;
+
   const formatTimeOnly = (timestamp) => {
     return moment(timestamp).format("h:mm A");
   };
@@ -31,22 +32,7 @@ const Message = ({ messageDetails }) => {
       <div className="chat-header">
         <time className="text-xs opacity-50">{formatTimeOnly(messageDetails?.createdAt)}</time>
       </div>
-      <div className="chat-bubble">
-        {messageDetails?.message}
-        {isSender && (
-          <span
-            className={`text-[10px] ml-2 ${
-              messageDetails?.status === "read" ? "text-blue-500" : "text-gray-400"
-            }`}
-          >
-            {messageDetails?.status === "read"
-              ? "✓✓"
-              : messageDetails?.status === "delivered"
-              ? "✓✓"
-              : "✓"}
-          </span>
-        )}
-      </div>
+      <div className="chat-bubble">{messageDetails?.message}</div>
     </div>
   );
 };

@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { FaCommentDots } from "react-icons/fa";
 import SendMessage from "./SendMessage";
 import Message from "./Message";
-import User from "./User";
 import { setSelectedUser } from "../../store/slice/user/user.slice";
 import moment from "moment";
 import { getMessageThunk } from "../../store/slice/message/message.thunk";
@@ -11,10 +10,12 @@ import { clearMessages } from "../../store/slice/message/message.slice";
 
 const MessageContainer = ({ onOpenSidebarMobile }) => {
   const dispatch = useDispatch();
-  const { selectedUser, userProfile } = useSelector((state) => state.userReducer);
+  const { selectedUser } = useSelector((state) => state.userReducer);
   const { messages, hasMore } = useSelector((state) => state.messageReducer);
+  const { onlineUsers, socket } = useSelector((state) => state.socketReducer);
 
   const [page, setPage] = useState(1);
+  const [isTyping, setIsTyping] = useState(false);
   const scrollContainerRef = useRef(null);
   const isFetching = useRef(false);
 
@@ -30,7 +31,7 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
         if (scrollContainerRef.current) {
           scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
         }
-      }, 200); 
+      }, 200);
     }
   };
 
@@ -45,6 +46,25 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
   useEffect(() => {
     if (page > 1) loadMessages();
   }, [page]);
+
+  useEffect(() => {
+    if (!socket || !selectedUser) return;
+
+    const typingHandler = ({ from }) => {
+      if (from === selectedUser._id) setIsTyping(true);
+    };
+    const stopTypingHandler = ({ from }) => {
+      if (from === selectedUser._id) setIsTyping(false);
+    };
+
+    socket.on("userTyping", typingHandler);
+    socket.on("userStopTyping", stopTypingHandler);
+
+    return () => {
+      socket.off("userTyping", typingHandler);
+      socket.off("userStopTyping", stopTypingHandler);
+    };
+  }, [socket, selectedUser]);
 
   const handleScroll = () => {
     const el = scrollContainerRef.current;
@@ -76,6 +96,8 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
     );
   }
 
+  const isOnline = onlineUsers?.includes(selectedUser._id);
+
   return (
     <div className="h-full w-full flex flex-col bg-gray-900 text-white">
       <div className="flex items-center justify-between p-3 border-b border-b-white/10">
@@ -87,7 +109,21 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
             ←
           </button>
         </div>
-        <User userDetails={selectedUser} isStatic={true} onCloseMobile={onOpenSidebarMobile} />
+
+        <div className="flex items-center gap-3">
+          <img
+            src={selectedUser?.avatar}
+            alt="avatar"
+            className="w-10 h-10 rounded-full object-cover"
+          />
+          <div className="flex flex-col">
+            <p className="text-white font-medium">{selectedUser?.fullName}</p>
+            <p className="text-xs text-white/60">
+              {isTyping ? "typing..." : isOnline ? "online" : "offline"}
+            </p>
+          </div>
+        </div>
+
         <div className="md:hidden ml-auto">
           <button onClick={onOpenSidebarMobile} className="text-sm underline">Users</button>
         </div>
