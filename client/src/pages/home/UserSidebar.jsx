@@ -31,14 +31,17 @@ const UserSideBar = ({ onCloseMobile }) => {
   }, [searchValue, otherUsers]);
 
   const getLastMessage = (otherUserId) => {
-    const filtered = messages
-      .filter(msg =>
-        (msg.senderId === userProfile._id && msg.receiverId === otherUserId) ||
-        (msg.senderId === otherUserId && msg.receiverId === userProfile._id)
-      )
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      
-    return filtered[0]?.message || "Say hi to your friend 👋";
+    const relevantMessages = messages.filter(msg =>
+      (msg.senderId === userProfile._id && msg.receiverId === otherUserId) ||
+      (msg.senderId === otherUserId && msg.receiverId === userProfile._id)
+    );
+
+    if (relevantMessages.length === 0) return "Say hi to your friend 👋";
+
+    const lastMessage = relevantMessages
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+
+    return lastMessage.message;
   };
 
   const handleLogout = async () => {
