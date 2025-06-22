@@ -30,13 +30,6 @@ const messageSlice = createSlice({
       state.hasMore = res?.hasMore ?? false;
       state.messages = [...newMessages, ...state.messages];
     });
-
-    builder.addCase(sendMessageThunk.fulfilled, (state, action) => {
-      const msg = action.payload?.responseData;
-      if (msg) {
-        state.messages.push(msg);
-      }
-    });
   },
 });
 
