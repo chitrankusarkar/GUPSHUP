@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedUser } from "../../store/slice/user/user.slice";
 
-const User = ({ userDetails, onCloseMobile = () => {}, isStatic = false }) => {
+const User = ({ userDetails, lastMessage = "", onCloseMobile = () => {}, isStatic = false }) => {
   const dispatch = useDispatch();
   const { selectedUser } = useSelector((state) => state.userReducer);
   const { onlineUsers } = useSelector((state) => state.socketReducer);
@@ -31,9 +31,11 @@ const User = ({ userDetails, onCloseMobile = () => {}, isStatic = false }) => {
           <span className="absolute bottom-0 right-0 block w-3 h-3 bg-green-400 border-2 border-gray-900 rounded-full"></span>
         )}
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col w-full overflow-hidden">
         <p className="text-white font-medium">{userDetails?.fullName}</p>
-        <p className="text-white/60 text-sm">@{userDetails?.username}</p>
+        <p className="text-white/60 text-sm truncate">
+          {lastMessage || `@${userDetails?.username}`}
+        </p>
       </div>
     </div>
   );
