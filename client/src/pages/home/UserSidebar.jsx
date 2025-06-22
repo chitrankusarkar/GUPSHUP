@@ -37,7 +37,8 @@ const UserSideBar = ({ onCloseMobile }) => {
         (msg.senderId === otherUserId && msg.receiverId === userProfile._id)
       )
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    return filtered[0]?.message || "";
+      
+    return filtered[0]?.message || "Say hi to your friend 👋";
   };
 
   const handleLogout = async () => {
