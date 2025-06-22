@@ -13,8 +13,8 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
   const dispatch = useDispatch();
   const { selectedUser, userProfile } = useSelector((state) => state.userReducer);
   const { messages, hasMore } = useSelector((state) => state.messageReducer);
+
   const [page, setPage] = useState(1);
-  const [isTyping, setIsTyping] = useState(false);
   const scrollContainerRef = useRef(null);
   const isFetching = useRef(false);
 
@@ -30,7 +30,7 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
         if (scrollContainerRef.current) {
           scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
         }
-      }, 100);
+      }, 200); 
     }
   };
 
@@ -53,6 +53,17 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
     }
   };
 
+  const groupedMessages = {};
+  messages.forEach((msg) => {
+    const now = moment();
+    const msgMoment = moment(msg.createdAt);
+    let key = msgMoment.format("MMMM D");
+    if (now.isSame(msgMoment, "day")) key = "Today";
+    else if (now.clone().subtract(1, "day").isSame(msgMoment, "day")) key = "Yesterday";
+    if (!groupedMessages[key]) groupedMessages[key] = [];
+    groupedMessages[key].push(msg);
+  });
+
   if (!selectedUser) {
     return (
       <div className="h-full w-full flex flex-col items-center justify-center bg-gray-900 text-white text-center px-4">
@@ -64,17 +75,6 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
       </div>
     );
   }
-
-  const groupedMessages = {};
-  messages.forEach((msg) => {
-    const now = moment();
-    const msgMoment = moment(msg.createdAt);
-    let key = msgMoment.format("MMMM D");
-    if (now.isSame(msgMoment, 'day')) key = "Today";
-    else if (now.clone().subtract(1, 'day').isSame(msgMoment, 'day')) key = "Yesterday";
-    if (!groupedMessages[key]) groupedMessages[key] = [];
-    groupedMessages[key].push(msg);
-  });
 
   return (
     <div className="h-full w-full flex flex-col bg-gray-900 text-white">
@@ -108,9 +108,6 @@ const MessageContainer = ({ onOpenSidebarMobile }) => {
             ))}
           </div>
         ))}
-        {isTyping && (
-          <div className="px-4 text-sm text-white/70 italic">Typing...</div>
-        )}
       </div>
 
       <SendMessage />
